@@ -1,0 +1,583 @@
+{
+  "summary": {
+    "gt": 66,
+    "hit": 23,
+    "recall": 0.3485,
+    "findings": 34,
+    "tp": 28,
+    "fp": 6,
+    "dup": 0,
+    "precision": 0.8235,
+    "fp_rate": 0.1765
+  },
+  "levels": {
+    "l1": {
+      "gt": 13,
+      "hit": 9,
+      "recall": 0.6923,
+      "findings": 13,
+      "tp": 12,
+      "dup": 4,
+      "fp": 1,
+      "precision": 0.9231,
+      "rows": [
+        {
+          "category": "敏感信息",
+          "carrier": "/l1/",
+          "title": "首页身份证/手机号/后台口令/内网地址明文",
+          "hit": true,
+          "by": "F-0001 敏感信息/页面注释里留有不该公开的内容"
+        },
+        {
+          "category": "敏感信息",
+          "carrier": "/l1/files/config.php.bak",
+          "title": "配置备份含数据库与 FTP 口令",
+          "hit": true,
+          "by": "F-0006 敏感信息/目录内暴露源码备份(/l1/files/config.php.bak)"
+        },
+        {
+          "category": "敏感信息",
+          "carrier": "/l1/files/db.sql",
+          "title": "数据库导出可下载",
+          "hit": true,
+          "by": "F-0007 敏感信息/目录内暴露数据库备份文件(/l1/files/db.sql)"
+        },
+        {
+          "category": "敏感信息",
+          "carrier": "/l1/files/contact-list.csv",
+          "title": "通讯录导出可下载",
+          "hit": true,
+          "by": "F-0010 敏感信息/暴露内容含敏感信息(/files/contact-list.csv)"
+        },
+        {
+          "category": "挂马",
+          "carrier": "/l1/",
+          "title": "eval+atob 混淆脚本与隐藏 iframe",
+          "hit": true,
+          "by": "F-0002 挂马/脚本用 eval+Base64 执行隐藏代码"
+        },
+        {
+          "category": "篡改",
+          "carrier": "/l1/",
+          "title": "页脚赌博推广外链",
+          "hit": true,
+          "by": "F-0002 挂马/脚本用 eval+Base64 执行隐藏代码"
+        },
+        {
+          "category": "弱配置",
+          "carrier": "/l1/",
+          "title": "安全响应头缺失与版本泄漏",
+          "hit": true,
+          "by": "F-0013 弱配置/配置类加固项"
+        },
+        {
+          "category": "漏洞",
+          "carrier": "/l1/files/",
+          "title": "目录列表开启、备份文件可遍历",
+          "hit": true,
+          "by": "F-0004 弱配置/目录索引对外开放 /files/"
+        },
+        {
+          "category": "漏洞",
+          "carrier": "/l1/admin/",
+          "title": "后台入口无鉴权、表单预填口令",
+          "hit": true,
+          "by": "F-0005 弱配置/疑似管理入口对外可达 /admin/"
+        },
+        {
+          "category": "漏洞",
+          "carrier": "/l1/js/vendor/jquery.min.js",
+          "title": "旧版 jQuery 1.12.4",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "漏洞",
+          "carrier": "/l1/robots.txt",
+          "title": "robots.txt 指路后台",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "漏洞",
+          "carrier": "/l1/phpinfo.php",
+          "title": "phpinfo 信息泄露",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "漏洞",
+          "carrier": "/l1/files/download.php",
+          "title": "任意文件读取/目录穿越",
+          "hit": false,
+          "by": ""
+        }
+      ],
+      "fp_list": [
+        "F-0011 敏感信息/暴露内容含敏感信息(/files/README.txt) @ http://127.0.0.1:8899/l1/files/README.txt"
+      ],
+      "dup_list": [
+        "F-0003 挂马/页面含隐藏的外部框架",
+        "F-0008 敏感信息/暴露数据库备份文件(/files/db.sql)",
+        "F-0009 敏感信息/暴露源码备份(/files/config.php.bak)",
+        "F-0012 敏感信息/页面正文存在敏感信息明文"
+      ]
+    },
+    "l2": {
+      "gt": 14,
+      "hit": 6,
+      "recall": 0.4286,
+      "findings": 6,
+      "tp": 6,
+      "dup": 1,
+      "fp": 0,
+      "precision": 1.0,
+      "rows": [
+        {
+          "category": "篡改",
+          "carrier": "/l2/",
+          "title": "标题与页脚被改（需基线比对）",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "敏感信息",
+          "carrier": "/l2/news.html",
+          "title": "身份证前 12 位",
+          "hit": true,
+          "by": "F-0004 敏感信息/页面正文存在敏感信息明文"
+        },
+        {
+          "category": "敏感信息",
+          "carrier": "/l2/notice.html",
+          "title": "身份证后 4 位与手机号",
+          "hit": true,
+          "by": "F-0004 敏感信息/页面正文存在敏感信息明文"
+        },
+        {
+          "category": "敏感信息",
+          "carrier": "/l2/.env",
+          "title": "数据库/Redis/FTP 口令与云密钥",
+          "hit": true,
+          "by": "F-0001 敏感信息/暴露配置文件泄露(/.env)"
+        },
+        {
+          "category": "敏感信息",
+          "carrier": "/l2/.git/logs/HEAD",
+          "title": "提交者姓名与单位邮箱",
+          "hit": true,
+          "by": "F-0006 敏感信息/暴露内容含敏感信息(/.git/logs/HEAD)"
+        },
+        {
+          "category": "漏洞",
+          "carrier": "/l2/.git/",
+          "title": "Git 元数据残留",
+          "hit": true,
+          "by": "F-0002 敏感信息/暴露版本库元数据(/.git/config)"
+        },
+        {
+          "category": "漏洞",
+          "carrier": "/l2/backup/website-backup-20231108.tar.gz",
+          "title": "整站备份归档可下载",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "漏洞",
+          "carrier": "/l2/admin-backend/",
+          "title": "后台入口暴露且无鉴权",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "漏洞",
+          "carrier": "/l2/search.html",
+          "title": "反射型 XSS",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "漏洞",
+          "carrier": "/l2/js/vendor/bootstrap.min.js",
+          "title": "旧版 Bootstrap 3.3.7",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "挂马",
+          "carrier": "/l2/js/stat.js",
+          "title": "混淆外部 JS 动态注入",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "弱配置",
+          "carrier": "/l2/",
+          "title": "响应头值无效与版本泄漏",
+          "hit": true,
+          "by": "F-0005 弱配置/配置类加固项"
+        },
+        {
+          "category": "漏洞",
+          "carrier": "/l2/upload.php",
+          "title": "无限制文件上传",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "漏洞",
+          "carrier": "/l2/feedback.php",
+          "title": "存储型 XSS",
+          "hit": false,
+          "by": ""
+        }
+      ],
+      "fp_list": [],
+      "dup_list": [
+        "F-0003 敏感信息/暴露版本库元数据(/.git/HEAD)"
+      ]
+    },
+    "l3": {
+      "gt": 12,
+      "hit": 4,
+      "recall": 0.3333,
+      "findings": 4,
+      "tp": 3,
+      "dup": 0,
+      "fp": 1,
+      "precision": 0.75,
+      "rows": [
+        {
+          "category": "敏感信息",
+          "carrier": "/l3/notice.html",
+          "title": "手机号 HTML 实体编码",
+          "hit": true,
+          "by": "F-0002 敏感信息/页面正文存在敏感信息明文"
+        },
+        {
+          "category": "敏感信息",
+          "carrier": "/l3/staff.html",
+          "title": "Base64 口令与 JS 拼接身份证",
+          "hit": true,
+          "by": "F-0002 敏感信息/页面正文存在敏感信息明文"
+        },
+        {
+          "category": "敏感信息",
+          "carrier": "/l3/js/app.js",
+          "title": "接口地址/内部令牌/数据库连接串",
+          "hit": true,
+          "by": "F-0001 敏感信息/暴露数据库连接配置(/js/app.js)"
+        },
+        {
+          "category": "漏洞",
+          "carrier": "/l3/download/2023-archive.dat",
+          "title": "备份包伪装成 .dat（ZIP 魔术字）",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "漏洞",
+          "carrier": "/l3/download/",
+          "title": "目录列表需请求头解锁",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "漏洞",
+          "carrier": "/l3/js/vendor/jquery-3.4.1.min.js",
+          "title": "受影响版本 jQuery",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "弱配置",
+          "carrier": "/l3/",
+          "title": "CSP 值有害、缺 HSTS/Permissions-Policy",
+          "hit": true,
+          "by": "F-0003 弱配置/配置类加固项"
+        },
+        {
+          "category": "挂马",
+          "carrier": "/l3/js/app.js",
+          "title": "无 eval 的动态注入与信标回传",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "篡改",
+          "carrier": "/l3/notice.html",
+          "title": "银行账号与值班电话各差 1 位",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "篡改",
+          "carrier": "/l3/staff.html",
+          "title": "同一账号两页不一致",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "漏洞",
+          "carrier": "/l3/includes/cache.php",
+          "title": "混淆 WebShell",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "漏洞",
+          "carrier": "/l3/",
+          "title": "软 404（状态码不可信）",
+          "hit": false,
+          "by": ""
+        }
+      ],
+      "fp_list": [
+        "F-0004 敏感信息/暴露日志文件(/error.log) @ http://127.0.0.1:8899/l3/error.log"
+      ],
+      "dup_list": []
+    },
+    "l4": {
+      "gt": 11,
+      "hit": 1,
+      "recall": 0.0909,
+      "findings": 3,
+      "tp": 1,
+      "dup": 0,
+      "fp": 2,
+      "precision": 0.3333,
+      "rows": [
+        {
+          "category": "敏感信息",
+          "carrier": "/l4/notice.html",
+          "title": "云 AccessKey/数据库口令/内网入口",
+          "hit": true,
+          "by": "F-0002 敏感信息/页面正文存在敏感信息明文"
+        },
+        {
+          "category": "敏感信息",
+          "carrier": "/l4/api/v1/export",
+          "title": "全量人员表（参数凑对才返回）",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "敏感信息",
+          "carrier": "/l4/download/roster-2024.csv",
+          "title": "人员名单 CSV（Referer 门禁）",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "漏洞",
+          "carrier": "/l4/notice.html",
+          "title": "报错信息泄漏（堆栈/SQL/绝对路径）",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "漏洞",
+          "carrier": "/l4/api/v1/export",
+          "title": "API 无鉴权，仅靠参数隐蔽",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "漏洞",
+          "carrier": "/l4/upload/",
+          "title": "PUT/DELETE 方法开放",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "漏洞",
+          "carrier": "/l4/js/vendor/bootstrap.min.css",
+          "title": "旧版 Bootstrap 3.3.7",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "弱配置",
+          "carrier": "/l4/notice.html",
+          "title": "安全响应头只在首页设置",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "挂马",
+          "carrier": "/l4/",
+          "title": "仅对移动端 UA 注入",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "篡改",
+          "carrier": "/l4/notice.html",
+          "title": "HTTPS 降级与电话改 1 位",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "漏洞",
+          "carrier": "/l4/tools/page.php",
+          "title": "include 文件包含",
+          "hit": false,
+          "by": ""
+        }
+      ],
+      "fp_list": [
+        "F-0001 敏感信息/页面注释里留有不该公开的内容 @ http://127.0.0.1:8899/l4",
+        "F-0003 弱配置/配置类加固项 @ http://127.0.0.1:8899/l4"
+      ],
+      "dup_list": []
+    },
+    "l5": {
+      "gt": 10,
+      "hit": 1,
+      "recall": 0.1,
+      "findings": 2,
+      "tp": 1,
+      "dup": 0,
+      "fp": 1,
+      "precision": 0.5,
+      "rows": [
+        {
+          "category": "敏感信息",
+          "carrier": "/l5/staff.html",
+          "title": "零宽字符/隐藏表单/Set-Cookie 人事数据",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "敏感信息",
+          "carrier": "/l5/images/seal.png",
+          "title": "PNG iTXt 元数据中的证件号",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "敏感信息",
+          "carrier": "/l5/news.html",
+          "title": "证照号前半段",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "漏洞",
+          "carrier": "/l5/_notes/",
+          "title": "仅靠自定义请求头保护的栏目",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "漏洞",
+          "carrier": "/l5/js/app.js",
+          "title": "解锁暗号写在脚本里",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "弱配置",
+          "carrier": "/l5/",
+          "title": "缺全部现代安全响应头",
+          "hit": true,
+          "by": "F-0002 弱配置/配置类加固项"
+        },
+        {
+          "category": "挂马",
+          "carrier": "/l5/css/site.css",
+          "title": "CSS @import 外链与 preload",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "篡改",
+          "carrier": "/l5/download/",
+          "title": "公布的 SHA256 与文件实际值不符",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "篡改",
+          "carrier": "/l5/images/seal.png",
+          "title": "采集时间晚于改版时间",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "漏洞",
+          "carrier": "/l5/tools/restore.php",
+          "title": "unserialize 反序列化",
+          "hit": false,
+          "by": ""
+        }
+      ],
+      "fp_list": [
+        "F-0001 敏感信息/页面注释里留有不该公开的内容 @ http://127.0.0.1:8899/l5"
+      ],
+      "dup_list": []
+    },
+    "l6": {
+      "gt": 6,
+      "hit": 2,
+      "recall": 0.3333,
+      "findings": 6,
+      "tp": 5,
+      "dup": 3,
+      "fp": 1,
+      "precision": 0.8333,
+      "rows": [
+        {
+          "category": "漏洞",
+          "carrier": "/l6/",
+          "title": "全站软 404，状态码不可信",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "漏洞",
+          "carrier": "/l6/.git/",
+          "title": "Git 元数据残留（需靠内容特征识别）",
+          "hit": true,
+          "by": "F-0002 敏感信息/暴露版本库元数据(/.git/config)"
+        },
+        {
+          "category": "漏洞",
+          "carrier": "/l6/src/site-2024.tar.gz",
+          "title": "源码归档可下载",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "漏洞",
+          "carrier": "/l6/api",
+          "title": "内部接口无令牌时拒绝",
+          "hit": false,
+          "by": ""
+        },
+        {
+          "category": "敏感信息",
+          "carrier": "/l6/",
+          "title": "令牌前半与云密钥",
+          "hit": true,
+          "by": "F-0001 敏感信息/页面注释里留有不该公开的内容"
+        },
+        {
+          "category": "篡改",
+          "carrier": "/l6/",
+          "title": "首页 http 与公告页 https 不一致",
+          "hit": false,
+          "by": ""
+        }
+      ],
+      "fp_list": [
+        "F-0005 弱配置/配置类加固项 @ http://127.0.0.1:8899/l6"
+      ],
+      "dup_list": [
+        "F-0003 敏感信息/暴露版本库元数据(/.git/HEAD)",
+        "F-0004 敏感信息/页面正文存在敏感信息明文",
+        "F-0006 敏感信息/暴露内容含敏感信息(/.git/logs/HEAD)"
+      ]
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "servers": [
+    {
+      "name": "github",
+      "command": "npx -y @modelcontextprotocol/server-github",
+      "allow": false
+    }
+  ]
+}

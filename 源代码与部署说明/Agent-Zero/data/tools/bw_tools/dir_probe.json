@@ -1,0 +1,32 @@
+{
+  "name": "dir_probe",
+  "kind": "内置",
+  "readonly": true,
+  "impl": "dir_probe",
+  "description": "探测常见目录(上传/备份/数据/日志/管理入口等):判断是否开放目录索引、是否为登录入口、是否暴露文件。只做只读访问,不爆破、不上传。",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "target": {
+        "type": "string"
+      },
+      "dirs": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "hint": "优先要试的目录(自选);不传则用规则清单"
+      },
+      "also_defaults": {
+        "type": "boolean",
+        "hint": "给了 dirs 时,是否再用规则清单补足(默认否)"
+      }
+    },
+    "required": [
+      "target"
+    ],
+    "additionalProperties": false
+  },
+  "timeout_ms": 180000,
+  "source": "@app"
+}

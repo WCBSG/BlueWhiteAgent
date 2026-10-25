@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "active": "das",
+  "providers": [
+    {
+      "id": "das",
+      "name": "恒脑",
+      "kind": "das",
+      "base_url": "https://www.das-ai.com",
+      "model": "",
+      "api_key": "填恒脑 appKey",
+      "api_secret": "填恒脑 appSecret",
+      "user_app_key": "填恒脑 userAppKey",
+      "has_key": true,
+      "has_secret": true,
+      "agent_id": "",
+      "agent_keyword": "",
+      "headers": "",
+      "timeout_ms": 180000,
+      "temperature": 0.2,
+      "max_tokens": 0,
+      "enabled": true,
+      "ready": true
+    },
+    {
+      "id": "p2",
+      "name": "OpenAI 兼容",
+      "kind": "openai",
+      "base_url": "https://api.example.com",
+      "model": "填模型名",
+      "api_key": "填接口密钥",
+      "api_secret": "",
+      "user_app_key": "",
+      "has_key": true,
+      "has_secret": false,
+      "agent_id": "",
+      "agent_keyword": "",
+      "headers": "",
+      "timeout_ms": 45000,
+      "temperature": 0.2,
+      "max_tokens": 0,
+      "enabled": false,
+      "ready": false
+    }
+  ]
+}

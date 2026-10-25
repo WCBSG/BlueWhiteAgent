@@ -1,0 +1,23 @@
+{
+  "name": "sensitive_scan",
+  "kind": "内置",
+  "readonly": true,
+  "impl": "sensitive_scan",
+  "description": "扫描一段文本或一个取回的地址里的敏感信息(身份证/手机号/邮箱/IP/凭据/私钥),先做编码还原(实体/零宽/JS拼接/Base64)再判定,并叠加任务绑定的敏感信息定义(关键词、正则)。text 与 url 给一个即可。",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "text": {
+        "type": "string",
+        "hint": "要扫描的原文"
+      },
+      "url": {
+        "type": "string",
+        "hint": "直接取回这个地址再扫(与 text 二选一)"
+      }
+    },
+    "required": [],
+    "additionalProperties": false
+  },
+  "source": "@app"
+}

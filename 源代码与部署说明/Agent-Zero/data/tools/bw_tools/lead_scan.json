@@ -1,0 +1,20 @@
+{
+  "name": "lead_scan",
+  "kind": "内置",
+  "readonly": true,
+  "impl": "lead_scan",
+  "description": "读站点自己公布的路径清单(robots.txt 与 sitemap.xml),把它指向的目录、文件与接口整理成后续探测的线索。比起猜路径,这是与站点无关、任何目标都能用的做法。",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "target": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "target"
+    ],
+    "additionalProperties": false
+  },
+  "source": "@app"
+}

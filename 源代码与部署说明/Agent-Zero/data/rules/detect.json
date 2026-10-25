@@ -1,0 +1,383 @@
+﻿{
+  "version": "1",
+  "note": "站点知识全在这里:误发布落点、内容特征、期望的安全响应头、敏感信息正则、弱口令表、验证载荷、目录索引标记、等级与告警策略。改这个文件就能适配新单位,不用改代码、不用重编译;缺哪一项就自动用出厂值(同一个文件的内置副本)。",
+  "severity_levels": [
+    {
+      "name": "严重",
+      "rank": 4
+    },
+    {
+      "name": "高",
+      "rank": 3
+    },
+    {
+      "name": "中",
+      "rank": 2
+    },
+    {
+      "name": "低",
+      "rank": 1
+    },
+    {
+      "name": "信息",
+      "rank": 0
+    }
+  ],
+  "signatures": [
+    {
+      "name": "配置文件泄露",
+      "kind": "敏感信息",
+      "severity": "严重",
+      "tag": "config-secrets",
+      "body_any": [
+        "DB_PASSWORD=",
+        "DB_HOST=",
+        "DB_USER=",
+        "REDIS_PASSWORD=",
+        "SECRET_KEY=",
+        "APP_KEY=",
+        "AWS_SECRET_ACCESS_KEY"
+      ],
+      "body_not_any": [
+        "<html",
+        "<!doctype"
+      ],
+      "min_bytes": 20
+    },
+    {
+      "name": "数据库备份文件",
+      "kind": "敏感信息",
+      "severity": "严重",
+      "tag": "sql-dump",
+      "body_any": [
+        "INSERT INTO",
+        "CREATE TABLE",
+        "DROP TABLE",
+        "MySQL dump",
+        "PostgreSQL database dump"
+      ],
+      "body_not_any": [
+        "<html",
+        "<!doctype"
+      ],
+      "min_bytes": 64
+    },
+    {
+      "name": "私钥文件",
+      "kind": "敏感信息",
+      "severity": "严重",
+      "tag": "private-key",
+      "body_any": [
+        "BEGIN RSA PRIVATE KEY",
+        "BEGIN PRIVATE KEY",
+        "BEGIN OPENSSH PRIVATE KEY",
+        "BEGIN EC PRIVATE KEY"
+      ]
+    },
+    {
+      "name": "版本库元数据",
+      "kind": "敏感信息",
+      "severity": "高",
+      "tag": "vcs-metadata",
+      "body_any": [
+        "[core]",
+        "repositoryformatversion",
+        "ref: refs/",
+        "svn:wc:",
+        "<wc-entries"
+      ]
+    },
+    {
+      "name": "数据库连接配置",
+      "kind": "敏感信息",
+      "severity": "高",
+      "tag": "db-uri",
+      "body_any": [
+        "jdbc:mysql",
+        "jdbc:postgresql",
+        "mongodb://",
+        "redis://",
+        "mysql://",
+        "postgres://"
+      ],
+      "body_not_any": [
+        "<html",
+        "<!doctype"
+      ],
+      "min_bytes": 16
+    },
+    {
+      "name": "源码备份",
+      "kind": "敏感信息",
+      "severity": "高",
+      "tag": "source-backup",
+      "path_suffix_any": [
+        ".bak",
+        ".old",
+        ".orig",
+        ".save",
+        ".swp",
+        ".tmp",
+        "~"
+      ],
+      "body_any": [
+        "<?php",
+        "#include",
+        "package ",
+        "<configuration",
+        "function "
+      ],
+      "min_bytes": 64
+    },
+    {
+      "name": "归档文件",
+      "kind": "敏感信息",
+      "severity": "中",
+      "tag": "archive",
+      "body_prefix_any": [
+        "PK"
+      ],
+      "min_bytes": 512
+    },
+    {
+      "name": "环境信息页",
+      "kind": "敏感信息",
+      "severity": "中",
+      "tag": "phpinfo",
+      "body_any": [
+        "PHP Version =>",
+        "<title>phpinfo()</title>"
+      ]
+    },
+    {
+      "name": "日志文件",
+      "kind": "敏感信息",
+      "severity": "中",
+      "tag": "log-file",
+      "path_suffix_any": [
+        ".log"
+      ],
+      "body_any": [
+        "ERROR",
+        "WARN",
+        "Exception",
+        "INFO "
+      ],
+      "min_bytes": 512
+    },
+    {
+      "name": "Java 应用配置清单",
+      "kind": "敏感信息",
+      "severity": "中",
+      "tag": "java-web-config",
+      "path_suffix_any": [
+        "web.xml",
+        "MANIFEST.MF"
+      ],
+      "body_any": [
+        "<web-app",
+        "Manifest-Version"
+      ]
+    }
+  ],
+  "weak_headers": [
+    {
+      "name": "strict-transport-security",
+      "title": "未启用 HSTS",
+      "severity": "中",
+      "only_https": 1,
+      "impact": "首次访问或证书异常时容易被降级劫持",
+      "fix": "在 HTTPS 站点启用 HSTS 并设置合理的 max-age"
+    },
+    {
+      "name": "content-security-policy",
+      "title": "缺少内容安全策略(CSP)",
+      "severity": "中",
+      "impact": "对脚本注入缺少第二道拦截",
+      "fix": "按业务梳理资源白名单后逐步启用 CSP"
+    },
+    {
+      "name": "x-content-type-options",
+      "title": "缺少 MIME 嗅探防护",
+      "severity": "低",
+      "impact": "浏览器可能把非脚本内容当脚本执行",
+      "fix": "增加 X-Content-Type-Options: nosniff"
+    },
+    {
+      "name": "x-frame-options",
+      "title": "缺少点击劫持防护",
+      "severity": "低",
+      "impact": "页面可被第三方框架嵌入用于诱导点击",
+      "fix": "增加 X-Frame-Options: SAMEORIGIN 或 CSP 的 frame-ancestors"
+    },
+    {
+      "name": "referrer-policy",
+      "title": "缺少引用来源策略",
+      "severity": "信息",
+      "impact": "外跳时可能把内部地址带出去",
+      "fix": "增加 Referrer-Policy: strict-origin-when-cross-origin"
+    },
+    {
+      "name": "permissions-policy",
+      "title": "缺少浏览器特性策略",
+      "severity": "信息",
+      "impact": "摄像头、定位等浏览器特性未被约束",
+      "fix": "按需增加 Permissions-Policy"
+    }
+  ],
+  "payloads": {
+    "note": "布尔差分验证用的载荷族(恒真/恒假成对)。不同数据库与框架的引号、括号、注释规则不同,按需增族。",
+    "boolean_diff": [
+      {
+        "context": "数字",
+        "true": "1 AND 1=1",
+        "false": "1 AND 1=2"
+      },
+      {
+        "context": "单引号",
+        "true": "1' AND '1'='1",
+        "false": "1' AND '1'='2"
+      },
+      {
+        "context": "双引号",
+        "true": "1\" AND \"1\"=\"1",
+        "false": "1\" AND \"1\"=\"2"
+      },
+      {
+        "context": "括号",
+        "true": "1) AND (1=1",
+        "false": "1) AND (1=2"
+      }
+    ]
+  },
+  "weak_passwords": [
+    "123456",
+    "12345678",
+    "123456789",
+    "111111",
+    "888888",
+    "666666",
+    "password",
+    "qwerty",
+    "abc123",
+    "admin",
+    "admin123",
+    "root",
+    "letmein",
+    "iloveyou",
+    "welcome",
+    "123qwe",
+    "a123456",
+    "p@ssw0rd",
+    "test123",
+    "123123",
+    "5201314",
+    "woaini",
+    "dbapp",
+    "hengnao",
+    "88888888",
+    "000000",
+    "1234567890"
+  ]
+
+  ,
+  "header_policies": {
+    "note": "响应头的值也要判。只有'有没有'是不够的:配了 X-Frame-Options: ALLOWALL 等于没配。mode 三选一:deny_value(出现这些值即有问题) / require_any(必须含其中之一) / require_token(必须含这个子串)。",
+    "policies": [
+      { "name": "x-frame-options", "severity": "中", "mode": "require_any",
+        "values": ["DENY", "SAMEORIGIN"],
+        "title": "点击劫持防护头取值无效",
+        "impact": "浏览器不认识的值等于没有防护,页面仍可被第三方框架嵌入",
+        "fix": "改为 DENY 或 SAMEORIGIN;或用 CSP 的 frame-ancestors 指令" },
+      { "name": "x-content-type-options", "severity": "低", "mode": "require_token",
+        "values": ["nosniff"],
+        "title": "MIME 嗅探防护头取值无效",
+        "impact": "浏览器仍可能把非脚本内容当脚本执行",
+        "fix": "改为 X-Content-Type-Options: nosniff" },
+      { "name": "referrer-policy", "severity": "中", "mode": "deny_value",
+        "values": ["unsafe-url", "no-referrer-when-downgrade"],
+        "title": "引用来源策略不安全",
+        "impact": "跨域跳转时会把完整 URL(可能含令牌)带给第三方",
+        "fix": "改为 strict-origin-when-cross-origin 或更严格的值" },
+      { "name": "content-security-policy", "severity": "中", "mode": "deny_value",
+        "values": ["unsafe-inline", "unsafe-eval", "default-src *", "script-src *"],
+        "title": "内容安全策略存在绕过项",
+        "impact": "策略里放开 inline/eval 或通配源,等于给注入留了后门",
+        "fix": "去掉 unsafe-inline/unsafe-eval 与通配源,改用 nonce 或 hash" },
+      { "name": "strict-transport-security", "severity": "中", "mode": "require_token",
+        "values": ["max-age="],
+        "title": "HSTS 缺少有效期",
+        "impact": "没有 max-age 的 HSTS 不会被浏览器采纳",
+        "fix": "设置 max-age(≥ 半年)并考虑 includeSubDomains" }
+    ]
+  },
+  "leads": {
+    "note": "线索源:robots/sitemap 是站点自己公布的路径清单,任何站点都可能有。它们指到哪儿,就顺着查哪儿。",
+    "robots_paths": ["/robots.txt"],
+    "sitemap_paths": ["/sitemap.xml", "/sitemap_index.xml", "/sitemap.txt"],
+    "max_leads": 40,
+    "skip_ext": [".jpg", ".jpeg", ".png", ".gif", ".svg", ".webp", ".ico", ".css", ".woff", ".woff2", ".ttf"]
+  },
+  "backup_names": {
+    "note": "通用命名族:不是'某个站的备份文件名',而是'备份文件通常怎么命名'。在已确认存在的目录里逐个试,命中与否用内容判定,不看后缀。",
+    "stems": ["config", "web", "site", "db", "database", "backup", "app", "index", "admin", "www", "data"],
+    "suffixes": [".bak", ".old", ".orig", ".save", ".swp", ".tmp", ".zip", ".tar.gz", ".tgz", ".rar", ".7z", ".sql", ".dump"],
+    "dotfiles": [".env", ".env.bak", ".env.local", ".git/config", ".git/HEAD", ".svn/entries", ".DS_Store", ".npmrc", ".htpasswd"],
+    "max_per_dir": 24,
+    "max_dirs": 3
+  },
+  "static_scan": {
+    "note": "脚本与样式里的行为特征:只看'代码在干什么'(注入、外链、藏数据),不看具体域名。域名可疑度只作为加权,不作为判据。",
+    "max_files": 12,
+    "max_bytes": 200000,
+    "js_behaviors": [
+      { "id": "eval-obfuscated", "severity": "高", "title": "脚本用 eval+Base64 执行隐藏代码",
+        "any": ["eval(atob(", "eval(unescape(", "eval(decodeURIComponent("],
+        "impact": "执行内容在源码里看不出来,是挂马最常用的写法",
+        "fix": "定位该脚本来源并下线;排查模板与上传入口" },
+      { "id": "dynamic-script-inject", "severity": "高", "title": "脚本动态注入外部脚本",
+        "any": ["createelement(\"script\")", "createelement('script')"],
+        "all": ["src"],
+        "impact": "运行期才插入脚本,静态审查与常规扫描都看不到",
+        "fix": "确认注入源与目标域;非本站资源一律移除" },
+      { "id": "document-write-script", "severity": "高", "title": "脚本用 document.write 拼接标签",
+        "any": ["document.write(\"<script", "document.write('<script", "document.writeln(\"<script"],
+        "impact": "拼接出来的脚本不进入 DOM 解析前的静态内容,易躲避检查",
+        "fix": "移除该写法;确需加载资源时改用显式 script 标签" },
+      { "id": "string-timer", "severity": "中", "title": "定时器执行字符串代码",
+        "any": ["settimeout(\"", "settimeout('", "setinterval(\"", "setinterval('"],
+        "impact": "字符串形式的定时器等价于 eval,同样可以藏代码",
+        "fix": "改为传函数引用" },
+      { "id": "cookie-exfil", "severity": "高", "title": "脚本读取 Cookie 并发往外部",
+        "any": ["document.cookie"],
+        "and_any": ["new image", "sendbeacon", "xmlhttprequest", "fetch(", "img.src", ".src"],
+        "impact": "会话票据可能被静默带出站点",
+        "fix": "为 Cookie 加 HttpOnly;排查该脚本来源" },
+      { "id": "hidden-frame", "severity": "高", "title": "页面含隐藏的外部框架",
+        "any": ["width=\"0\"", "width='0'", "width:0", "display:none", "visibility:hidden"],
+        "all": ["<iframe"],
+        "impact": "隐藏框架可被用于静默加载第三方内容或追踪",
+        "fix": "移除隐藏框架;排查模板被插入的位置" },
+      { "id": "credential-literal", "severity": "高", "title": "脚本内含连接串或令牌字面量",
+        "any": ["mysql://", "postgres://", "mongodb://", "redis://", "jdbc:", "secret_key", "svc_token", "api_key="],
+        "impact": "前端代码里的凭据任何访问者都能取到",
+        "fix": "把凭据移到服务端;轮换已暴露的密钥" }
+    ],
+    "css_behaviors": [
+      { "id": "css-import-external", "severity": "中", "title": "样式表用 @import 引入外部资源",
+        "any": ["@import url(http", "@import url(//", "@import \"http", "@import 'http"],
+        "impact": "外部样式可在运行期替换页面内容,也常被用来做统计与挂马",
+        "fix": "确认外部源;非本站资源改为本地托管" }
+    ],
+    "component_patterns": [
+      { "name": "jquery", "file_hint": "jquery", "regex": "jquery[ -]?v?([0-9]+\\.[0-9]+\\.[0-9]+)",
+        "vulnerable_below": "3.5.0", "severity": "中" },
+      { "name": "bootstrap", "file_hint": "bootstrap", "regex": "bootstrap[ -]?v?([0-9]+\\.[0-9]+\\.[0-9]+)",
+        "vulnerable_below": "3.4.1", "severity": "中" },
+      { "name": "angular", "file_hint": "angular", "regex": "angular[ -]?v?([0-9]+\\.[0-9]+\\.[0-9]+)",
+        "vulnerable_below": "1.8.0", "severity": "中" },
+      { "name": "lodash", "file_hint": "lodash", "regex": "lodash[ -]?v?([0-9]+\\.[0-9]+\\.[0-9]+)",
+        "vulnerable_below": "4.17.21", "severity": "中" }
+    ]
+  }
+}

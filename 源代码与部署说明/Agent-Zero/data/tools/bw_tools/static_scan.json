@@ -1,0 +1,35 @@
+{
+  "name": "static_scan",
+  "kind": "内置",
+  "readonly": true,
+  "impl": "static_scan",
+  "description": "扫描页面引用的脚本与样式(以及内联代码、注释):按行为特征判断挂马(动态注入脚本、eval+Base64、Cookie 外发、隐藏框架、@import 外链),按版本区间判断受影响的前端组件,并先做编码还原(实体/零宽/Base64/字符串拼接)再判定。",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "target": {
+        "type": "string",
+        "hint": "起始地址,一般填本次目标"
+      },
+      "urls": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "hint": "直接指定要扫的脚本/样式地址(可把上一步拿到的填进来)"
+      },
+      "pages": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "hint": "要一起扫的页面(不填则扫 target 与已发现的资产)"
+      }
+    },
+    "required": [
+      "target"
+    ],
+    "additionalProperties": false
+  },
+  "source": "@app"
+}

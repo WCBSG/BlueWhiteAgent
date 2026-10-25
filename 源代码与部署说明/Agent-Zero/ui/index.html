@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#faf9f6">
+<title>BlueWhiteAgent</title>
+<link rel="icon" type="image/png" href="/ui/logo.png">
+<link rel="alternate icon" type="image/x-icon" href="/ui/favicon.ico">
+<link rel="apple-touch-icon" href="/ui/logo.png">
+<link rel="stylesheet" href="/ui/app.css">
+</head>
+<body>
+
+<div class="layer home on" id="home">
+  <header class="home-top">
+    <span class="brand"><img class="mark" src="/ui/logo.png" alt="" aria-hidden="true">网站安全巡检</span>
+    <nav class="home-nav" aria-label="数据视图">
+      <button class="link" data-goto="report">报告</button>
+      <button class="link" data-goto="history">日志</button>
+      <button class="link" data-goto="assets">资产</button>
+      <button class="link" data-goto="eval">证据</button>
+      <button class="link" data-goto="config">配置</button>
+    </nav>
+    <div class="home-right">
+      <span class="pill status-pill" id="pill-model" title="模型状态"></span>
+      <span class="pill status-pill" id="pill-scope" title="授权状态"></span>
+      <span class="pill status-pill" id="pill-count" title="发现数量"></span>
+      <button class="link weak" id="btn-scope">设置授权</button>
+    </div>
+  </header>
+
+  <main class="home-main">
+    <h1 class="ask">网安巡检智能体</h1>
+    <p class="ask-sub">输入已授权的网址，说清要查什么；每条结论都带证据。</p>
+
+    <form class="composer" id="home-form">
+      <textarea id="hq" rows="2" aria-label="巡检目标与要求"
+        placeholder="看看www.example-gov.cn有没有敏感文件泄露"></textarea>
+      <div class="composer-bar">
+        <span class="tag" id="home-scope">未设置授权目标</span>
+        <button class="start" type="submit" id="btn-start">开始</button>
+      </div>
+    </form>
+
+    <section class="recent">
+      <div class="recent-head">
+        <h2>最近的巡检</h2>
+        <span id="recent-meta">还没有记录</span>
+        <button class="link weak" data-goto="history">全部</button>
+      </div>
+      <div class="recent-grid" id="recent"><div class="recent-empty">跑完第一轮，这里会按时间排出历史。</div></div>
+    </section>
+  </main>
+</div>
+
+<div class="layer work" id="work">
+  <aside class="side">
+    <div class="side-top">
+      <span class="brand"><img class="mark" src="/ui/logo.png" alt="" aria-hidden="true">网站安全巡检</span>
+      <button class="rail-toggle side-toggle" id="btn-side" type="button" title="收起侧边栏 (Ctrl+B)">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg>
+      </button>
+      <div class="side-actions">
+        <button class="act" id="btn-home" type="button" title="返回首页（起手式）">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.2 12 4l8 7.2"/><path d="M6.5 10.4V20h11v-9.6"/></svg>
+          <span>HOME</span>
+        </button>
+        <button class="act" id="btn-search" type="button" title="搜索任务、发现、资产（Ctrl+K）">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
+          <span>搜索</span>
+          <kbd>Ctrl K</kbd>
+        </button>
+        <button class="act" data-goto="rules" type="button" title="检测口径：判什么、按什么等级算、探多少">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h14v15H5z"/><path d="M8 8.5h8M8 12h8M8 15.5h5"/></svg>
+          <span>规则</span>
+          <kbd>Ctrl L</kbd>
+        </button>
+        <button class="act" data-goto="config" type="button" title="规则、MCP、技能与工具配置">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M18.4 5.6l-1.6 1.6M7.2 16.8l-1.6 1.6"/></svg>
+          <span>设置</span>
+          <kbd>Ctrl I</kbd>
+        </button>
+      </div>
+      <button class="new" id="btn-new" type="button">＋ 新建巡检</button>
+    </div>
+
+    <div class="side-list" id="chats"></div>
+    <div class="side-foot">
+      <b id="side-scope-name">未设置目标</b>
+      <span id="side-scope-status">确认授权后开始巡检</span>
+    </div>
+  </aside>
+
+  <div class="splitter" id="sp-left" role="separator" aria-orientation="vertical"
+       title="拖动调整宽度，双击恢复默认"></div>
+
+  <div class="main">
+    <div class="head">
+      <span class="path">任务 /</span>
+      <h1 id="task-title">巡检会话</h1>
+      <div class="head-right">
+        <span class="chip link" id="work-scope" role="button" tabindex="0"
+              title="授权管理">目标由指令决定</span>
+        <span class="chip link" id="work-model" role="button" tabindex="0"
+              title="模型设置">离线规则</span>
+        <button class="ghost" data-goto="report">数据</button>
+      </div>
+    </div>
+
+    <div class="stream" id="stream">
+      <div class="empty" id="stream-empty">
+        <b>还没有开始</b>
+        <p>输入要查什么，过程和证据会显示在这里。</p>
+      </div>
+    </div>
+
+    <form class="compose" id="form">
+      <div class="compose-grip" id="compose-grip" role="separator" aria-orientation="horizontal"
+           title="拖动调整输入区高度，双击恢复默认"></div>
+
+      <div class="slash-pop" id="slash-pop" role="listbox" aria-label="命令"></div>
+
+      <div class="approval-bar" id="approval-bar" role="alertdialog" aria-live="polite">        <div class="ab-row">
+          <span class="ab-tag">需要你确认</span>
+          <span class="ab-tool" id="ab-tool"></span>
+          <span class="ab-policy" id="ab-policy"></span>
+          <span class="ab-count" id="ab-count"></span>
+        </div>
+        <div class="ab-args" id="ab-args"></div>
+        <div class="ab-actions">
+          <button class="ab-no" id="ab-no" type="button">拒绝</button>
+          <button class="ab-yes" id="ab-yes" type="button">允许</button>
+        </div>
+      </div>
+
+      <div class="approval-bar question-bar" id="question-bar" role="dialog" aria-live="polite">
+        <div class="ab-row">
+          <span class="ab-tag">需要你决定</span>
+          <span class="ab-tool" id="q-title">智能体提问</span>
+          <span class="ab-policy" id="q-hint"></span>
+        </div>
+        <div class="q-msg" id="q-msg"></div>
+        <div id="q-fields"></div>
+        <div class="ab-actions">
+          <button class="ab-yes" id="q-submit" type="button">提交</button>
+        </div>
+      </div>
+      <div class="field">
+        <button type="button" class="clip" id="btn-attach" title="添加附件：日志、配置、导出文件或截图" aria-label="添加附件">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 12.5 15 6a3.2 3.2 0 0 1 4.5 4.5l-7.6 7.6a5 5 0 0 1-7.1-7.1l7.3-7.3"/></svg>
+        </button>
+        <input type="file" id="attach" multiple hidden
+               accept=".txt,.log,.json,.md,.csv,.ini,.conf,.cfg,.xml,.html,.yml,.yaml,.sql,.env,.png,.jpg,.jpeg,.webp">
+        <textarea id="q" rows="1" aria-label="巡检指令" placeholder="继续追问…"></textarea>
+        <button type="button" id="btn-stop" class="stop-btn" hidden>停止</button>
+        <button type="submit" id="btn-send">执行</button>
+      </div>
+      <div class="attach-list" id="attach-list"></div>
+
+      <div class="compose-foot">
+        <select class="target-select policy-select" id="approval-select" title="工具调用的审批策略"></select>
+
+        <div class="ctx-wrap" id="ctx-wrap">
+          <button type="button" class="ctx-ring" id="ctx-ring" title="上下文占用">
+            <svg viewBox="0 0 36 36" aria-hidden="true">
+              <circle class="ctx-bg" cx="18" cy="18" r="15"></circle>
+              <circle class="ctx-fg" id="ctx-arc" cx="18" cy="18" r="15"
+                      stroke-dasharray="94.248" stroke-dashoffset="94.248"></circle>
+            </svg>
+            <span class="ctx-pct" id="ctx-pct">0%</span>
+          </button>
+          <div class="ctx-pop" id="ctx-pop" hidden>
+            <div class="ctx-pop-title">上下文窗口</div>
+            <div class="ctx-pop-nums"><b id="ctx-nums">0 / 0</b><span id="ctx-ratio">0%</span></div>
+            <div class="ctx-bar"><span class="ctx-bar-fill" id="ctx-bar-fill"></span><span class="ctx-bar-hold"></span></div>
+            <div class="ctx-bar-note"><i></i>保留用于响应</div>
+            <div class="ctx-pop-sub" id="ctx-sub">已压缩 0 轮</div>
+            <button type="button" class="ctx-compact" id="ctx-compact">压缩对话</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="splitter" id="sp-right" role="separator" aria-orientation="vertical"
+       title="拖动调整宽度，双击恢复默认"></div>
+
+  <aside class="rail">
+    <div class="rail-head">
+      <span class="rh-title">产物</span>
+      <span class="rh-right">
+        <b id="rail-count">本轮</b>
+        <button class="rail-toggle" id="btn-rail" type="button" title="收起侧边栏">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg>
+        </button>
+      </span>
+    </div>
+    <div class="rail-body">
+      <section class="card rail-card">
+        <div class="k"><span>报告</span><em id="rail-report-state">未生成</em></div>
+        <h3 id="rail-report-title">还没有报告</h3>
+        <div class="sub" id="rail-report-meta">跑完一轮后自动生成</div>
+        <div class="bar-mini" id="rail-report-bars"></div>
+        <dl class="kv" id="rail-report-kv"></dl>
+        <button class="go" data-goto="report">看完整报告</button>
+      </section>
+
+    </div>
+  </aside>
+</div>
+
+<section class="layer sheet" id="sheet">
+  <header class="sheet-top">
+    <button class="ghost" id="btn-back">← 返回</button>
+    <div class="sheet-title">
+      <div class="path" id="current-view-kicker">巡检 / 报告</div>
+      <h1 id="current-view-title">巡检报告</h1>
+    </div>
+    <div class="sheet-right">
+          <div class="export-menu" id="export-menu">
+            <button class="ghost" id="btn-export" title="导出报告与发现清单">导出</button>
+            <div class="export-list" id="export-list">
+              <button type="button" data-fmt="md">Markdown<span>给人读、能进 git</span></button>
+              <button type="button" data-fmt="html">HTML<span>浏览器打开，可打印</span></button>
+              <button type="button" data-fmt="csv">CSV<span>一条发现一行</span></button>
+              <button type="button" data-fmt="docx">Word (.docx)<span>走公文流程</span></button>
+              <button type="button" data-fmt="pdf">PDF<span>定稿交付</span></button>
+            </div>
+          </div>
+          <button class="ghost" id="btn-refresh2" title="刷新数据">刷新</button>
+        </div>
+  </header>
+
+  <div class="sheet-body" id="views">
+
+    <section class="view" id="view-report">
+      <section class="panel">
+        <div class="panel-head">
+          <div><h2>最新巡检报告</h2></div>
+          <span class="hint" id="report-hint"></span>
+        </div>
+        <div class="tiles" id="report-tiles"></div>
+        <div class="report-summary" id="report-summary"></div>
+        <div class="report-cols">
+          <div class="mini"><h3>按等级</h3><div class="bars" id="report-sev"></div></div>
+          <div class="mini"><h3>按类别</h3><div class="bars" id="report-kind"></div></div>
+        </div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><div><h2>发现清单</h2></div><span class="hint" id="findings-hint"></span></div>
+        <div class="cards" id="findings-list"></div>
+      </section>
+    </section>
+
+    <section class="view" id="view-history">
+      <section class="panel">
+        <div class="panel-head"><div><h2>巡检任务</h2></div><span class="hint">授权范围 + 只读约束</span></div>
+        <div class="cards" id="tasks-list"></div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><div><h2>运行记录</h2></div><span class="hint" id="runs-hint"></span></div>
+        <div class="table-wrap"><table class="table" id="runs-table"></table></div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><div><h2>内容基线</h2></div><span class="hint">首次采集，之后每次比对差异</span></div>
+        <div class="cards" id="baselines-list"></div>
+      </section>
+    </section>
+
+    <section class="view" id="view-assets">
+      <section class="panel">
+        <div class="panel-head"><div><h2>资产底账</h2></div><span class="hint" id="assets-hint"></span></div>
+        <div class="filters" id="asset-filters"></div>
+        <div class="table-wrap"><table class="table" id="assets-table"></table></div>
+      </section>
+    </section>
+
+    <section class="view" id="view-eval">
+      <section class="panel">
+        <div class="panel-head"><div><h2>证据与闭环</h2></div><span class="hint" id="eval-hint"></span></div>
+        <p class="note">
+          每条结论都要有<strong>证据 / 影响 / 修复建议</strong>，这里核对它们齐不齐、闭环走到哪一步。
+          效果指标由评测方按统一数据集给出，本工具不自行计算。
+        </p>
+        <div class="tiles" id="eval-tiles"></div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><div><h2>状态分布</h2></div><span class="hint">新发现 / 已确认 / 已修复 / 复测结论</span></div>
+        <div class="bars" id="eval-status"></div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><div><h2>需要补证据的结论</h2></div><span class="hint">没有证据就不该下结论</span></div>
+        <div class="cards" id="eval-missing"></div>
+      </section>
+    </section>
+
+    <section class="view" id="view-rules">
+      <div class="set-shell">
+        <nav class="set-nav" id="rules-domains" aria-label="规则域"></nav>
+        <div class="set-main">
+          <div class="set-head">
+            <h2 id="rules-title">检测口径</h2>
+            <span id="rules-domain-note"></span>
+          </div>
+          <div class="rules-preset" id="rules-preset">
+            <span class="rp-label">规则预设</span>
+            <select id="preset-select" aria-label="规则预设"></select>
+            <button class="ghost" id="preset-apply" type="button">应用</button>
+            <button class="ghost" id="preset-save" type="button">另存为…</button>
+            <button class="ghost" id="preset-del" type="button">删除</button>
+            <span class="rp-note" id="preset-note">切换预设会把 6 个规则域整套换掉</span>
+          </div>
+          <div class="set-form" id="rules-form"></div>
+          <div class="set-foot">
+            <button class="primary" id="rules-save">保存这一域</button>
+            <button class="ghost" id="rules-reload">重新载入</button>
+            <span id="rules-msg"></span>
+            <span class="grow"></span>
+            <span class="set-msg" id="rules-hint"></span>
+          </div>
+
+          <div class="set-panel" id="auto-panel-profile">
+            <div class="set-pane">
+              <p class="note">
+                关键词 / 样例按正文命中，正则保存前会试编译；落点会并入敏感文件探测，文件类型用于定级。
+                一条定义是一套口径，定时任务可各选一套。
+              </p>
+              <div class="auto-list" id="prof-list"></div>
+
+              <div class="auto-form">
+                <div class="auto-form-head">
+                  <h3>新建定义</h3>
+                  <span class="auto-form-note">只有这家站点才会出现的口径</span>
+                </div>
+                <label class="fld">
+                  <span>名称</span>
+                  <input id="prof-name" type="text" autocomplete="off" placeholder="例如 门户站口径（2026 版）">
+                </label>
+                <div class="fld fld-wide">
+                  <span>关键词（一行一个）</span>
+                  <textarea id="prof-keywords" rows="3" spellcheck="false" placeholder="内部项目代号&#10;某某系统"></textarea>
+                </div>
+                <div class="fld fld-wide">
+                  <span>正则（一行一条）</span>
+                  <textarea id="prof-regex" rows="3" spellcheck="false" placeholder="工号 GD-[0-9]{6}&#10;(?i)internal[-_]token"></textarea>
+                </div>
+                <div class="fld fld-wide">
+                  <span>样例片段（一行一条，正文里出现即命中）</span>
+                  <textarea id="prof-samples" rows="2" spellcheck="false" placeholder="例如某段固定配置：spring.datasource.url=jdbc:mysql://10."></textarea>
+                </div>
+                <label class="fld">
+                  <span>自定义落点（一行一个，以 / 开头）</span>
+                  <textarea id="prof-paths" rows="3" spellcheck="false" placeholder="/backup/db.sql&#10;/.svn/entries"></textarea>
+                </label>
+                <label class="fld">
+                  <span>文件类型（一行一个）</span>
+                  <textarea id="prof-types" rows="3" spellcheck="false" placeholder="sql&#10;env&#10;bak"></textarea>
+                </label>
+              </div>
+            </div>
+            <div class="set-foot">
+              <span class="grow"></span>
+              <button class="ghost" id="prof-reset" type="button">清空</button>
+              <button class="primary" id="prof-save" type="button">保存定义</button>
+              <span class="note" id="prof-msg"></span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="view-config">
+      <div class="set-shell">
+        <nav class="set-nav" id="set-nav" aria-label="设置分类"></nav>
+        <div class="set-main">
+          <div class="set-head">
+            <h2 id="set-title">基础</h2>
+            <span id="set-desc">规则版本</span>
+          </div>
+
+          <div class="set-form" id="set-form"></div>
+
+          <section class="set-panel" id="ui-panel">
+            <div class="ui-form">
+              <label class="ui-row"><span>左栏宽度</span>
+                <input type="range" id="ui-side" min="180" max="420" step="4"><b id="ui-side-v"></b></label>
+              <label class="ui-row"><span>右栏宽度</span>
+                <input type="range" id="ui-rail" min="240" max="560" step="4"><b id="ui-rail-v"></b></label>
+              <label class="ui-row"><span>输入框高度</span>
+                <input type="range" id="ui-compose" min="44" max="300" step="4"><b id="ui-compose-v"></b></label>
+              <label class="ui-row ui-check"><span>自动滚动</span>
+                <input type="checkbox" id="ui-autoscroll"><b></b></label>
+              <label class="ui-row ui-check"><span>界面动效</span>
+                <input type="checkbox" id="ui-motion"><b></b></label>
+            </div>
+            <div class="set-foot">
+              <button class="ghost" id="ui-reset" type="button">恢复默认</button>
+              <span class="set-msg">拖动两条分隔线也能改宽度；双击分隔线回到默认。</span>
+            </div>
+          </section>
+
+          <div class="set-panel" id="cap-panel">
+
+            <div class="config-main cap-main">
+              <div id="cap-list-view">
+                <div class="cap-bar" id="cap-bar">
+                  <span class="cap-title" id="cap-kind-label">技能</span>
+                  <span class="cap-count" id="cap-stat"></span>
+                  <span class="grow"></span>
+                  <button type="button" class="primary" id="cap-btn-new">＋ 新建</button>
+                </div>
+                <div class="cap-list" id="cap-list"></div>
+              </div>
+              <div class="cap-files" id="cap-files" style="display:none"></div>
+            </div>
+          </div>
+
+          <div class="set-panel" id="mcp-panel"></div>
+
+          <div class="set-panel" id="auto-panel-rules">
+            <div class="set-pane">
+              <div class="auto-list" id="auto-list"></div>
+
+              <div class="auto-form">
+                <div class="auto-form-head">
+                  <h3 id="auto-form-title">新建定时任务</h3>
+                  <span class="auto-form-note">授权域名 + 范围 + 周期</span>
+                </div>
+                <label class="fld">
+                  <span>目标（授权域名，可带端口）</span>
+                  <input id="auto-domain" type="text" autocomplete="off" placeholder="www.example-gov.cn">
+                </label>
+                <label class="fld">
+                  <span>巡检范围</span>
+                  <select id="auto-scope">
+                    <option value="full">完整巡检（摸家底 + 完整性 + 敏感信息 + 配置与漏洞）</option>
+                    <option value="leak">只查敏感信息泄露</option>
+                    <option value="integrity">只查内容完整性（篡改/挂马）</option>
+                    <option value="recon">只做资产与页面发现</option>
+                    <option value="retest">只复测未修复项</option>
+                  </select>
+                  <em class="fld-help">要更细的组合用下面的检查项</em>
+                </label>
+                <div class="fld fld-wide">
+                  <span>检查项（可多选；勾了就按勾的跑，基线只和"同样勾法"的上一轮比）</span>
+                  <div class="checks-row">
+                    <label class="check"><input type="checkbox" class="auto-check" value="recon"><span>资产与页面</span></label>
+                    <label class="check"><input type="checkbox" class="auto-check" value="integrity"><span>内容完整性</span></label>
+                    <label class="check"><input type="checkbox" class="auto-check" value="leak"><span>敏感信息</span></label>
+                    <label class="check"><input type="checkbox" class="auto-check" value="retest"><span>复测</span></label>
+                    <label class="check"><input type="checkbox" class="auto-check" value="full"><span>完整巡检（含配置与漏洞探测）</span></label>
+                  </div>
+                </div>
+                <label class="fld">
+                  <span>敏感信息定义（本单位口径）</span>
+                  <select id="auto-profile"></select>
+                  <em class="fld-help">选「出厂口径」就是只按 rules.json 的规则查</em>
+                </label>
+                <label class="fld">
+                  <span>周期类型</span>
+                  <select id="auto-kind">
+                    <option value="interval">固定间隔</option>
+                    <option value="daily">每天定点</option>
+                    <option value="weekly">每周定点</option>
+                  </select>
+                </label>
+                <label class="fld" id="auto-every-wrap">
+                  <span>间隔（分钟）</span>
+                  <input id="auto-every" type="number" min="1" max="43200" step="1" value="360">
+                  <em class="fld-help">360 = 每 6 小时；演示时可填 1</em>
+                </label>
+                <label class="fld" id="auto-at-wrap" hidden>
+                  <span>定点时间</span>
+                  <div class="fld-row">
+                    <input id="auto-hour" type="number" min="0" max="23" value="3"><span>时</span>
+                    <input id="auto-min" type="number" min="0" max="59" value="0"><span>分</span>
+                  </div>
+                </label>
+                <label class="fld" id="auto-wd-wrap" hidden>
+                  <span>星期几</span>
+                  <select id="auto-weekday">
+                    <option value="1">周一</option><option value="2">周二</option><option value="3">周三</option>
+                    <option value="4">周四</option><option value="5">周五</option><option value="6">周六</option>
+                    <option value="0">周日</option>
+                  </select>
+                </label>
+                <label class="fld">
+                  <span>备注名（可空）</span>
+                  <input id="auto-name" type="text" autocomplete="off" placeholder="例如 门户站每日体检">
+                </label>
+              </div>
+            </div>
+            <div class="set-foot">
+              <label class="check"><input type="checkbox" id="auto-enabled" checked><span>启用</span></label>
+              <span class="grow"></span>
+              <button class="ghost" id="auto-reset" type="button">清空</button>
+              <button class="primary" id="auto-save" type="button">保存任务</button>
+              <span class="note" id="auto-msg"></span>
+            </div>
+          </div>
+
+          <div class="set-panel" id="auto-panel-approval">
+            <div class="set-pane">
+              <p class="note">
+                工具调用前先过这道闸：<code>询问</code> 停下来等你点，<code>全部允许</code> 直接放行；
+                自定义策略按工具名逐条指定允许 / 询问 / 拒绝，自上而下第一条命中生效。
+              </p>
+              <div class="auto-list" id="appr-list"></div>
+
+              <div class="auto-form">
+                <div class="auto-form-head">
+                  <h3>新建自定义策略</h3>
+                  <span class="auto-form-note">按工具名逐条指定</span>
+                </div>
+                <label class="fld">
+                  <span>策略名称</span>
+                  <input id="appr-name" type="text" autocomplete="off" placeholder="例如 只读放行，探测前问我">
+                </label>
+                <label class="fld fld-wide">
+                  <span>规则（一行一条：工具名=允许/询问/拒绝，支持 * 通配）</span>
+                  <textarea id="appr-rules" rows="5" spellcheck="false" placeholder="page_diff=允许&#10;sensitive_scan=允许&#10;sensitive_file_probe=询问&#10;dir_probe=询问&#10;nuclei_scan=拒绝&#10;*_probe=询问"></textarea>
+                </label>
+              </div>
+            </div>
+            <div class="set-foot">
+              <span class="grow"></span>
+              <button class="ghost" id="appr-reset" type="button">清空</button>
+              <button class="primary" id="appr-save" type="button">保存为自定义策略</button>
+              <span class="note" id="appr-msg"></span>
+            </div>
+          </div>
+
+          <div class="set-panel" id="model-panel">
+            <div class="cap-bar">
+              <span class="cap-title">模型</span>
+              <span class="cap-count" id="model-stat"></span>
+              <span class="grow"></span>
+              <button class="ghost" type="button" id="model-btn-test">测试当前</button>
+              <button type="button" class="primary" id="model-btn-new">＋ 接入一家</button>
+            </div>
+            <div class="note" id="model-note"></div>
+            <div class="cap-list" id="model-list"></div>
+            <div class="cap-edit" id="model-edit"></div>
+          </div>
+
+          <div class="set-foot" id="set-foot">
+            <button class="primary" id="set-save">保存并生效</button>
+            <button class="ghost" id="set-reset">放弃改动</button>
+            <span id="set-msg"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</section>
+
+<div class="palette" id="palette" role="dialog" aria-modal="true" aria-label="搜索">
+  <div class="palette-backdrop"></div>
+  <div class="palette-box">
+    <div class="palette-input">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
+      <input id="palette-q" type="text" autocomplete="off" placeholder="搜索任务、发现、资产，或直接跳到某个视图…">
+      <kbd>Esc</kbd>
+    </div>
+    <div class="palette-list" id="palette-list"></div>
+    <div class="palette-foot" id="palette-foot">回车打开第一项 · ↑↓ 选择</div>
+  </div>
+</div>
+
+<div class="ask-modal" id="ask" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="ask-backdrop" id="ask-backdrop"></div>
+  <form class="ask-box" id="ask-form">
+    <h3 id="ask-title">输入</h3>
+    <p class="ask-desc" id="ask-desc"></p>
+    <input id="ask-input" type="text" autocomplete="off" spellcheck="false">
+    <div class="ask-foot">
+      <span class="ask-msg" id="ask-msg"></span>
+      <button class="ghost" type="button" id="ask-cancel">取消</button>
+      <button class="primary" type="submit" id="ask-ok">确定</button>
+    </div>
+  </form>
+</div>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="scope-title">
+  <div class="modal-backdrop"></div>
+  <div class="modal-box">
+    <h3 id="scope-title">授权池</h3>
+    <p class="muted">只对<strong>池内主机</strong>发请求，池外目标一律拦下。每一轮查哪个站，在指令里说。</p>
+    <p class="field-help">条目写法：<code>exp.com</code> 允许；<code>exp.com:8443</code> 只允许这个端口；
+      <code>!exp.com</code> 不允许整站；<code>!exp.com/admin/</code> 只不允许这个路径前缀（不允许优先于允许）。</p>
+
+    <div class="pool-list" id="pool-list"></div>
+
+    <label>加入授权主机<input id="scope-domain" placeholder="exp.com 或 !exp.com/admin/"></label>
+    <p class="field-help">只填主机名，可带端口；前面加 <code>!</code> 表示不允许。请确认已获得该目标的授权。</p>
+
+    <details class="pool-batch">
+      <summary>批量录入 / 从文件导入</summary>
+      <textarea id="pool-batch-text" rows="4" spellcheck="false"
+                placeholder="一行一个（也认逗号分隔；# 开头是注释）&#10;exp.com&#10;oa.b.gov.cn:8443&#10;!exp.com/admin/"></textarea>
+      <div class="pool-batch-foot">
+        <label class="ghost tiny file-btn">从文本文件导入
+          <input type="file" id="pool-import" accept=".txt,.csv,.list,text/plain" hidden>
+        </label>
+        <span class="muted" id="pool-batch-hint">支持 .txt / .csv，一行一个；<code>!</code> 开头表示不允许</span>
+      </div>
+    </details>
+
+    <label class="check"><input type="checkbox" id="scope-ok"><span>我确认已获得该目标的巡检授权</span></label>
+    <div class="modal-actions">
+      <button class="ghost" id="scope-cancel">关闭</button>
+      <button class="ghost" id="scope-batch">批量加入</button>
+      <button class="primary" id="scope-save">加入授权池</button>
+    </div>
+    <div class="err" id="scope-err"></div>
+  </div>
+</div>
+
+<div class="modal" id="warn-modal" role="dialog" aria-modal="true" aria-labelledby="warn-title">
+  <div class="modal-backdrop"></div>
+  <div class="modal-box">
+    <h3 id="warn-title">切换到「全部允许」？</h3>
+    <p class="muted">开启后，智能体调用任何工具都不会再问你一句。它仍然只能访问<strong>授权池内</strong>的主机、
+      只用只读方法、全程留痕 —— 但「要不要动手」这道确认就没有了。</p>
+    <div class="modal-actions">
+      <button class="ghost" id="warn-cancel">保持当前策略</button>
+      <button class="primary" id="warn-ok">我已了解，开启</button>
+    </div>
+  </div>
+</div>
+
+<script src="/ui/app.js"></script>
+</body>
+</html>
